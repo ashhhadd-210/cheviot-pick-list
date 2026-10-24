@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cheviot Trees Batch Pick List - 6 Digit Batch Groups - Last Delivery Highlight</title>
+<style>
+:root{
+  --green:#28643a;--green-dark:#174d29;--green-soft:#e8f2eb;
+  --ink:#203128;--muted:#66756c;--line:#d5ded8;--bg:#f3f6f4;--panel:#fff;
+  --yard:#dcecff;--labels:#f8dce8;--progress:#fff0b6;--done:#d7efd7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.wrap{width:100%;max-width:none;margin:0;padding:12px}
+.titlebar{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:14px}
+h1{font-size:25px;margin:0 0 4px}.subtitle{margin:0;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{border:1px solid #b9c7bd;background:#fff;border-radius:10px;padding:10px 15px;font-weight:700}
+.tab.active{background:var(--green);border-color:var(--green);color:#fff}
+.count{display:inline-block;min-width:24px;margin-left:6px;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.22)}
+.controls{display:grid;grid-template-columns:1.4fr repeat(4,minmax(145px,1fr));gap:10px;margin-top:14px}
+label{font-size:13px;font-weight:700}
+input[type=file],input[type=search],input[type=date],select,textarea,.edit{
+  width:100%;border:1px solid #b9c7bd;border-radius:8px;background:#fff;padding:8px 9px
+}
+label>input,label>select{margin-top:5px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.btn{border:1px solid #b9c7bd;background:#fff;border-radius:9px;padding:9px 12px;font-weight:700}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.complete{background:var(--green-dark);border-color:var(--green-dark);color:#fff}
+.btn.restore{background:#fff;border-color:var(--green);color:var(--green-dark)}
+.actions .push{margin-left:auto}
+.note{font-size:13px;color:var(--muted);margin:9px 0 0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpi span{font-size:13px;color:var(--muted)}.kpi strong{display:block;font-size:25px;margin-top:3px}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.badge{padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid rgba(0,0,0,.08)}
+.status-not-started{background:#fff}.status-yard{background:var(--yard)}.status-labels{background:var(--labels)}
+.last-delivery-line{background:#e9ddff!important;box-shadow:inset 5px 0 0 #7250a8}
+.last-delivery-badge{display:block;margin-top:3px;font-size:9px;font-weight:800;color:#563887;text-transform:uppercase;letter-spacing:.04em}
+.status-progress{background:var(--progress)}.status-completed{background:var(--done)}
+.batch{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:10px}
+.batchbar{display:grid;grid-template-columns:42px 85px minmax(240px,2fr) 105px 110px 115px 150px 165px;gap:9px;align-items:center;padding:10px}
+.toggle{width:34px;height:34px;border:1px solid #b9c7bd;background:#fff;border-radius:8px;font-size:20px;line-height:1}
+.batchname{font-size:18px;font-weight:800}.small{font-size:12px;color:var(--muted)}
+.species-summary{font-size:14px;color:#405348}
+.batchtotal{font-size:20px;font-weight:800;text-align:right}
+.group-status{margin:0}
+.table-scroll{overflow:visible;border-top:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:0;table-layout:fixed}
+th{position:sticky;top:0;background:#edf3ef;color:#31463a;text-align:left;font-size:9px;padding:6px 4px;border-bottom:1px solid var(--line);white-space:normal;overflow-wrap:anywhere;line-height:1.15}
+td{padding:5px 4px;border-bottom:1px solid var(--line);font-size:10px;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}
+tr:last-child td{border-bottom:0}
+td input,td select,td textarea{width:100%;min-width:0;min-height:34px;resize:vertical}
+td textarea{min-width:180px;min-height:36px;resize:vertical}
+.species-cell{min-width:0;font-weight:700}.species-cell small{display:block;font-weight:normal;color:var(--muted);margin-top:3px}
+.num{text-align:right;font-weight:700}.batch-total-cell{text-align:right;font-weight:800}
+.archive-stamp{font-size:12px;color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.hidden{display:none!important}
+.toast{position:fixed;right:18px;bottom:18px;max-width:360px;background:#173c25;color:#fff;padding:11px 14px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.18);display:none}
+@media(max-width:1100px){
+  .controls{grid-template-columns:repeat(3,1fr)}
+  .batchbar{grid-template-columns:42px 90px 1fr 100px 100px 135px}
+  .batchbar .linecount,.batchbar .complete-wrap{grid-column:auto}
+}
+@media(max-width:720px){
+  .wrap{padding:10px}.titlebar{display:block}.controls{grid-template-columns:1fr 1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .batchbar{grid-template-columns:38px 80px 1fr}
+  .batchbar .batchtotal,.batchbar .linecount,.batchbar .frametotal{display:none}
+  .batchbar .status-wrap,.batchbar .complete-wrap{grid-column:2/4}
+  .actions .push{margin-left:0}
+}
+
+.label-tools{display:grid;grid-template-columns:minmax(170px,1fr) minmax(180px,1fr) auto auto;gap:10px;align-items:end}
+.delivery-label-preview{margin-top:14px;border:2px dashed #9dad9f;border-radius:12px;background:#fbfdfb;padding:20px;min-height:170px;display:flex;align-items:center;justify-content:center}
+.label-sheet{width:min(100%,700px);border:2px solid var(--green-dark);border-radius:12px;background:#fff;padding:24px;text-align:center}
+.label-sheet .label-heading{font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.label-sheet .match-code{font-size:38px;font-weight:900;margin:4px 0 18px;overflow-wrap:anywhere}
+.label-sheet .label-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.label-sheet .label-box{border:1px solid var(--line);border-radius:10px;padding:13px}
+.label-sheet .label-box span{display:block;font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase}
+.label-sheet .label-box strong{display:block;font-size:27px;margin-top:4px}
+.label-calculation{margin-top:14px;font-size:13px;color:var(--muted);font-weight:700}
+.label-warning{margin-top:14px;padding:9px;border-radius:8px;background:#fff0b6;color:#5b4800;font-size:13px;font-weight:700}
+#printDeliveryLabel:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:720px){.label-tools{grid-template-columns:1fr 1fr}.label-tools button{width:100%}.label-sheet .label-grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="titlebar">
+    <div>
+      <h1>Cheviot Trees Batch Pick List</h1>
+      <p class="subtitle">Grouped using the raw <strong>Batch No</strong>, but displayed as a unique <strong>6-digit Batch Group</strong>.</p>
+    </div>
+    <div class="tabs">
+      <button id="pickTab" class="tab active">Pick List <span id="pickCount" class="count">0</span></button>
+      <button id="labelsTab" class="tab">Labels <span id="labelsCount" class="count">0</span></button>
+      <button id="archiveTab" class="tab">Archive <span id="archiveCount" class="count">0</span></button>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="controls">
+      <label>Merge new raw CSV
+        <input id="fileInput" type="file" accept=".csv">
+      </label>
+      <label>Search
+        <input id="search" type="search" placeholder="Batch, delivery, species or customer">
+      </label>
+      <label>From loading date
+        <input id="fromDate" type="date">
+      </label>
+      <label>To loading date
+        <input id="toDate" type="date">
+      </label>
+      <label>Date order
+        <select id="dateOrder"><option value="asc">Earliest first</option><option value="desc">Latest first</option></select>
+      </label>
+    </div>
+    <div class="actions">
+      <button id="expandAll" class="btn">Expand all batches</button>
+      <button id="collapseAll" class="btn">Collapse all batches</button>
+      <button id="resetFilters" class="btn">Reset filters</button>
+      <button id="exportCsv" class="btn primary push">Export current page</button>
+    </div>
+    <p id="message" class="note">New raw files are merged into the existing pick list. Matching lines refresh without losing Status, Match Code or Notes; genuinely new lines are added; earlier lines remain; and archived batches are permanently protected. Pick-list Raw Frames is taken from raw data column B and calculated as B ÷ 32. The final Total Raw Frames column shows the total for the whole batch. Labels use the separate outward cell-size and correx calculation.</p>
+  </section>
+
+
+  <section id="labelsPanel" class="panel hidden">
+    <div class="label-tools">
+      <label>Delivery number
+        <select id="deliveryFilter"></select>
+      </label>
+      <label>Match Code
+        <input id="deliveryMatchCode" type="text" placeholder="Enter match code">
+      </label>
+      <button id="applyMatchCode" class="btn">APPLY MATCH CODE</button>
+      <button id="printDeliveryLabel" class="btn primary">PRINT</button>
+    </div>
+    <p class="note">The outward frame total uses the quantity and cell size: Cell 3/4 = 200 plants per correx, Cell 5 = 150 and Cell 6 = 120. There are 10 correx per frame, and the result is rounded up to a whole outward frame.</p>
+    <div id="deliveryLabelPreview" class="delivery-label-preview"></div>
+  </section>
+
+  <section id="kpiSection" class="kpis">
+    <div class="kpi"><span>Visible batches</span><strong id="batchKpi">0</strong></div>
+    <div class="kpi"><span>Visible order lines</span><strong id="lineKpi">0</strong></div>
+    <div class="kpi"><span>Visible quantity</span><strong id="qtyKpi">0</strong></div>
+    <div class="kpi"><span>Completed / archived batches</span><strong id="completeKpi">0</strong></div>
+  </section>
+
+  <div id="statusLegend" class="legend">
+    <span class="badge status-not-started">Not Started</span>
+    <span class="badge status-yard">In Yard</span>
+    <span class="badge status-labels">Labels Out</span>
+    <span class="badge status-progress">In Progress</span>
+    <span class="badge status-completed">Completed</span><span class="badge" style="background:#e9ddff;border-color:#c8b5ea;color:#563887">Last for Delivery</span>
+  </div>
+
+  <main id="results"></main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+const INITIAL_DATA = [{"uid":"row2-631199-A1-acer-campestre","batchGroup":"948218","loadingDate":"2026-08-09","deliveryNo":"631199","customer":"Cash Sale","extraInfo":"","species":"Acer campestre","size":"Cell4 20/60","prov":"HU","idNumber":"257","batchNo":"A1","bedNo":"A42","qty":100,"trayCount":4,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row9-631197-A3-betula-pendula","batchGroup":"732875","loadingDate":"2026-08-16","deliveryNo":"631197","customer":"Jonathan Trayte","extraInfo":"","species":"Betula pendula","size":"Cell4 20/60","prov":"UK 201","idNumber":"249","batchNo":"A3","bedNo":"A01","qty":50,"trayCount":2,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row12-631117-A4-carpinus-betulus","batchGroup":"479745","loadingDate":"2026-09-27","deliveryNo":"631117","customer":"Trees By Post","extraInfo":"","species":"Carpinus betulus","size":"Cell5 20/60","prov":"UK 405","idNumber":"251","batchNo":"A4","bedNo":"J07","qty":70,"trayCount":1,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row16-631197-A5-corylus-avellana","batchGroup":"116018","loadingDate":"2026-08-16","deliveryNo":"631197","customer":"Heydon Hill Tree Nursery","extraInfo":"","species":"Corylus avellana","size":"Cell6 20/60","prov":"UK 405","idNumber":"251","batchNo":"A5","bedNo":"A38","qty":50,"trayCount":3,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row19-631199-A5-corylus-avellana","batchGroup":"116018","loadingDate":"2026-08-09","deliveryNo":"631199","customer":"Guernsey Gardens Ltd","extraInfo":"","species":"Corylus avellana","size":"Cell6 20/60","prov":"UK 405","idNumber":"251","batchNo":"A5","bedNo":"A38","qty":100,"trayCount":6,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row22-631199-A6-crataegus-monogyna","batchGroup":"570367","loadingDate":"2026-08-09","deliveryNo":"631199","customer":"Future Trees Trust CIO","extraInfo":"","species":"Crataegus monogyna","size":"Cell3 20/60","prov":"DK Aero L164","idNumber":"261","batchNo":"A6","bedNo":"A17","qty":1100,"trayCount":35,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row26-631117-A7-crataegus-monogyna","batchGroup":"195720","loadingDate":"2026-09-27","deliveryNo":"631117","customer":"Beechgrove Nursery","extraInfo":"","species":"Crataegus monogyna","size":"Cell6 20/40","prov":"UK 304","idNumber":"255","batchNo":"A7","bedNo":"B40","qty":10,"trayCount":1,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row32-631198-A9-ligustrum-vulgare","batchGroup":"794699","loadingDate":"2026-08-09","deliveryNo":"631198","customer":"test 2","extraInfo":"","species":"Ligustrum vulgare","size":"Cell5  15/30","prov":"N/A","idNumber":"241","batchNo":"A9","bedNo":"A37","qty":190,"trayCount":18,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row56-631200-A10-populus-nigra-betulifolia","batchGroup":"282243","loadingDate":"2026-08-06","deliveryNo":"631200","customer":"test3","extraInfo":"","species":"Populus nigra betulifolia","size":"Cell6 20/60","prov":"UK 403","idNumber":"254","batchNo":"A10","bedNo":"A41","qty":10,"trayCount":1,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row59-631199-A11-prunus-spinosa","batchGroup":"629289","loadingDate":"2026-08-09","deliveryNo":"631199","customer":"test 5","extraInfo":"","species":"Prunus spinosa","size":"Cell4 20/60","prov":"PL","idNumber":"257","batchNo":"A11","bedNo":"A38","qty":100,"trayCount":4,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row62-631060-A12-quercus-petraea","batchGroup":"958112","loadingDate":"2026-08-30","deliveryNo":"631060","customer":"test 6","extraInfo":"","species":"Quercus petraea","size":"Cell6 20/60","prov":"UK 405-01 Leconfield Estate","idNumber":"263","batchNo":"A12","bedNo":"F16","qty":250,"trayCount":19,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row65-631197-A12-quercus-petraea","batchGroup":"958112","loadingDate":"2026-08-16","deliveryNo":"631197","customer":"test7","extraInfo":"","species":"Quercus petraea","size":"Cell6 20/60","prov":"UK 201-01 Darnaway","idNumber":"252","batchNo":"A12","bedNo":"F25","qty":50,"trayCount":5,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row68-631197-A13-salix-cinerea","batchGroup":"529610","loadingDate":"2026-08-16","deliveryNo":"631197","customer":"test 8","extraInfo":"","species":"Salix cinerea","size":"Cell4 20/60","prov":"UK 201","idNumber":"251","batchNo":"A13","bedNo":"A39","qty":50,"trayCount":2,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row76-631298-A9-ligustrum-vulgare","batchGroup":"794699","loadingDate":"2026-08-16","deliveryNo":"631298","customer":"test 9","extraInfo":"09/08/2026","species":"Ligustrum vulgare","size":"Cell5  15/30","prov":"N/A","idNumber":"","batchNo":"A9","bedNo":"A37","qty":200,"trayCount":18,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""},{"uid":"row77-631398-A9-ligustrum-vulgare","batchGroup":"794699","loadingDate":"2026-08-16","deliveryNo":"631398","customer":"test10","extraInfo":"09/08/2026","species":"Ligustrum vulgare","size":"Cell5  15/30","prov":"N/A","idNumber":"","batchNo":"A9","bedNo":"A37","qty":300,"trayCount":18,"status":"Not Started","notes":"","archived":false,"archivedAt":"","matchCode":""}];
+const STORAGE_KEY = "cheviot-pick-list-v8-delivery-labels";
+const STATUSES = ["Not Started","In Yard","Labels Out","In Progress","Completed"];
+const HEADERS = ["Batch Group","Loading Date","Delivery No","Qty","Match Code","Customer","Extra info","Species","Prov","ID Number","Batch No","Bed No","Raw Frames","Status","Notes","Total Raw Frames"];
+
+let rows = ensureBatchGroups(loadSaved());
+let activePage = "pick";
+const expanded = new Set();
+
+function $(id){ return document.getElementById(id); }
+function validBatchGroup(value){
+  return /^\d{6}$/.test(String(value||"").trim());
+}
+function generateBatchGroup(used){
+  let code="";
+  do{
+    code=String(Math.floor(100000 + Math.random()*900000));
+  }while(used.has(code));
+  used.add(code);
+  return code;
+}
+function ensureBatchGroups(data){
+  const used=new Set();
+  const byRawBatch=new Map();
+
+  data.forEach(row=>{
+    const raw=String(row.batchNo||"").trim();
+    const group=String(row.batchGroup||"").trim();
+    if(raw && validBatchGroup(group) && !byRawBatch.has(raw)){
+      byRawBatch.set(raw,group);
+      used.add(group);
+    }
+  });
+
+  data.forEach(row=>{
+    const raw=String(row.batchNo||"").trim();
+    if(!raw) return;
+    if(!byRawBatch.has(raw)){
+      byRawBatch.set(raw,generateBatchGroup(used));
+    }
+    row.batchGroup=byRawBatch.get(raw);
+  });
+
+  return data;
+}
+function normalise(value){ return String(value ?? "").trim(); }
+function normaliseHeader(value){ return normalise(value).toLowerCase().replace(/[^a-z0-9]/g,""); }
+function numberValue(value){
+  const cleaned = String(value ?? "").replace(/,/g,"").match(/-?\d+(?:\.\d+)?/);
+  return cleaned ? Number(cleaned[0]) : 0;
+}
+function toIsoDate(value){
+  const text = normalise(value);
+  if(!text) return "";
+  const uk = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(uk) return `${uk[3]}-${uk[2].padStart(2,"0")}-${uk[1].padStart(2,"0")}`;
+  const date = new Date(text);
+  return Number.isNaN(date.getTime()) ? text : date.toISOString().slice(0,10);
+}
+function ukDate(value){
+  if(!value) return "";
+  const date = new Date(value + "T00:00:00");
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("en-GB");
+}
+function loadSaved(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(Array.isArray(saved) && saved.length) return saved;
+  }catch(error){}
+  return INITIAL_DATA.map(row => ({...row}));
+}
+function save(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+}
+save();
+function statusClass(status){
+  if(status === "Not Started") return "status-not-started";
+  if(status === "Labels Out") return "status-labels";
+  if(status === "In Progress") return "status-progress";
+  if(status === "Completed") return "status-completed";
+  return "status-not-started";
+}
+function showToast(text){
+  const toast = $("toast");
+  toast.textContent = text;
+  toast.style.display = "block";
+  window.clearTimeout(showToast.timer);
+  showToast.timer = window.setTimeout(() => toast.style.display = "none", 2600);
+}
+function parseCsv(text){
+  const output=[]; let row=[], field="", quoted=false;
+  for(let i=0;i<text.length;i++){
+    const char=text[i], next=text[i+1];
+    if(char === '"' && quoted && next === '"'){ field += '"'; i++; }
+    else if(char === '"'){ quoted = !quoted; }
+    else if(char === "," && !quoted){ row.push(field); field=""; }
+    else if((char === "\n" || char === "\r") && !quoted){
+      if(char === "\r" && next === "\n") i++;
+      row.push(field); field="";
+      if(row.some(cell => normalise(cell))) output.push(row);
+      row=[];
+    }else field += char;
+  }
+  row.push(field);
+  if(row.some(cell => normalise(cell))) output.push(row);
+  return output;
+}
+function findColumn(headers, names, fallback){
+  const normalised = headers.map(normaliseHeader);
+  for(const name of names){
+    const index = normalised.indexOf(normaliseHeader(name));
+    if(index >= 0) return index;
+  }
+  return fallback;
+}
+function stableKey(row){
+  // Stable identity deliberately excludes fields that may change between raw pulls,
+  // such as quantity, tray count, customer wording, loading date and status.
+  return [
+    normalise(row.deliveryNo),
+    normalise(row.batchNo),
+    normalise(row.species),
+    normalise(row.size),
+    normalise(row.idNumber),
+    normalise(row.prov)
+  ].join("|").toLowerCase();
+}
+function importRawCsv(matrix){
+  if(matrix.length < 2) throw new Error("The CSV has no usable data.");
+
+  const h=matrix[0];
+  const col={
+    qty:findColumn(h,["Quantity","Quanitity"],0),
+    tray:findColumn(h,["Tray","Trays"],1),
+    species:findColumn(h,["Species"],4),
+    size:findColumn(h,["Size"],5),
+    delivery:findColumn(h,["Delivery No","Delivery Number"],7),
+    customer:findColumn(h,["Customer"],-1),
+    match:findColumn(h,["Match Code","MatchCode"],-1),
+    extra:findColumn(h,["Extra Info","Extra Information"],16),
+    prov:findColumn(h,["Prov","Provenance"],9),
+    id:findColumn(h,["ID Number","ID No"],18),
+    batch:findColumn(h,["Batch No","Batch Number"],19),
+    bed:findColumn(h,["Bed No","Bed Number"],15),
+    date:findColumn(h,["Loading Date"],17),
+    status:findColumn(h,["Status"],20),
+    notes:findColumn(h,["Notes"],-1)
+  };
+
+  const uploadedByKey=new Map();
+  let duplicateRawLines=0;
+
+  const usedBatchGroups=new Set(
+    rows.map(row=>String(row.batchGroup||"").trim()).filter(validBatchGroup)
+  );
+  const batchGroupsByRaw=new Map();
+  rows.forEach(row=>{
+    const raw=normalise(row.batchNo);
+    const group=normalise(row.batchGroup);
+    if(raw && validBatchGroup(group) && !batchGroupsByRaw.has(raw)){
+      batchGroupsByRaw.set(raw,group);
+    }
+  });
+  function batchGroupFor(rawBatchNo){
+    if(!batchGroupsByRaw.has(rawBatchNo)){
+      batchGroupsByRaw.set(rawBatchNo,generateBatchGroup(usedBatchGroups));
+    }
+    return batchGroupsByRaw.get(rawBatchNo);
+  }
+
+  matrix.slice(1).forEach((r,index)=>{
+    const quantity=numberValue(r[col.qty]);
+    const species=normalise(r[col.species]);
+    const batchNo=normalise(r[col.batch]);
+
+    if(!quantity || !species || !batchNo) return;
+
+    const candidate={
+      uid:`import-${Date.now()}-${index}`,
+      batchGroup:batchGroupFor(batchNo),
+      loadingDate:toIsoDate(r[col.date]),
+      deliveryNo:normalise(r[col.delivery]),
+      customer:col.customer>=0?normalise(r[col.customer]):"",
+      matchCode:col.match>=0?normalise(r[col.match]):"",
+      extraInfo:col.extra>=0?normalise(r[col.extra]):"",
+      species,
+      size:normalise(r[col.size]),
+      prov:normalise(r[col.prov]),
+      idNumber:normalise(r[col.id]),
+      batchNo,
+      bedNo:normalise(r[col.bed]),
+      qty:quantity,
+      trayCount:col.tray>=0?numberValue(r[col.tray]):0,
+      status:col.status>=0 && STATUSES.includes(normalise(r[col.status]))
+        ? normalise(r[col.status])
+        : "Not Started",
+      notes:col.notes>=0?normalise(r[col.notes]):"",
+      archived:false,
+      archivedAt:""
+    };
+
+    const key=stableKey(candidate);
+    const priorUpload=uploadedByKey.get(key);
+
+    if(priorUpload){
+      // Combine repeated raw lines for the same delivery/batch/species identity,
+      // rather than creating duplicate visible records.
+      priorUpload.qty += Number(candidate.qty||0);
+      priorUpload.trayCount += Number(candidate.trayCount||0);
+      if(!priorUpload.customer) priorUpload.customer=candidate.customer;
+      if(!priorUpload.extraInfo) priorUpload.extraInfo=candidate.extraInfo;
+      if(!priorUpload.bedNo) priorUpload.bedNo=candidate.bedNo;
+      if(!priorUpload.matchCode) priorUpload.matchCode=candidate.matchCode;
+      duplicateRawLines++;
+    }else{
+      uploadedByKey.set(key,candidate);
+    }
+  });
+
+  if(!uploadedByKey.size){
+    throw new Error("No rows with Quantity, Species and Batch No were found.");
+  }
+
+  const activeByKey=new Map();
+  const archivedByKey=new Map();
+
+  rows.forEach(row=>{
+    const key=stableKey(row);
+    if(row.archived){
+      if(!archivedByKey.has(key)) archivedByKey.set(key,row);
+    }else if(!activeByKey.has(key)){
+      activeByKey.set(key,row);
+    }
+  });
+
+  let added=0;
+  let updated=0;
+  let unchanged=0;
+  let archivedProtected=0;
+  const matchedActiveKeys=new Set();
+
+  const rawRefreshFields=[
+    "batchGroup",
+    "loadingDate",
+    "deliveryNo",
+    "customer",
+    "extraInfo",
+    "species",
+    "size",
+    "prov",
+    "idNumber",
+    "batchNo",
+    "bedNo",
+    "qty",
+    "trayCount"
+  ];
+
+  uploadedByKey.forEach((candidate,key)=>{
+    // A completed archived line is never recreated on the live pick list.
+    if(archivedByKey.has(key)){
+      archivedProtected++;
+      return;
+    }
+
+    const existing=activeByKey.get(key);
+
+    if(existing){
+      matchedActiveKeys.add(key);
+      let changed=false;
+
+      rawRefreshFields.forEach(field=>{
+        const nextValue=candidate[field];
+        if(String(existing[field]??"") !== String(nextValue??"")){
+          existing[field]=nextValue;
+          changed=true;
+        }
+      });
+
+      // Preserve user-managed workflow data.
+      if(!existing.matchCode && candidate.matchCode){
+        existing.matchCode=candidate.matchCode;
+        changed=true;
+      }
+      if(!existing.notes && candidate.notes){
+        existing.notes=candidate.notes;
+        changed=true;
+      }
+
+      if(changed) updated++;
+      else unchanged++;
+      return;
+    }
+
+    rows.push(candidate);
+    activeByKey.set(key,candidate);
+    matchedActiveKeys.add(key);
+    added++;
+  });
+
+  // Existing active rows that are absent from this week's file deliberately remain.
+  const retainedExisting=[...activeByKey.keys()]
+    .filter(key=>!matchedActiveKeys.has(key))
+    .length;
+
+  expanded.clear();
+  save();
+
+  return {
+    added,
+    updated,
+    unchanged,
+    retainedExisting,
+    archivedProtected,
+    duplicateRawLines,
+    importedUnique:uploadedByKey.size,
+    totalStored:rows.length
+  };
+}
+
+function visibleRows(){
+  const search=$("search").value.toLowerCase();
+  const from=$("fromDate").value;
+  const to=$("toDate").value;
+  const direction=$("dateOrder").value;
+  return rows.filter(row=>{
+    const correctPage=activePage==="archive"?row.archived:!row.archived;
+    const text=[row.batchGroup,row.loadingDate,row.deliveryNo,row.matchCode,row.customer,row.extraInfo,row.species,row.prov,row.idNumber,row.batchNo,row.bedNo,row.status,row.notes].join(" ").toLowerCase();
+    return correctPage && (!search || text.includes(search)) && (!from || row.loadingDate>=from) && (!to || row.loadingDate<=to);
+  }).sort((a,b)=>{
+    const dateCompare=(a.loadingDate||"").localeCompare(b.loadingDate||"");
+    if(dateCompare!==0) return direction==="asc"?dateCompare:-dateCompare;
+    return a.batchNo.localeCompare(b.batchNo,undefined,{numeric:true});
+  });
+}
+function isLastOutstandingForDelivery(row){
+  const delivery=normalise(row.deliveryNo);
+  if(!delivery || row.archived || row.status==="Completed") return false;
+  const outstanding=rows.filter(item=>
+    !item.archived &&
+    normalise(item.deliveryNo)===delivery &&
+    item.status!=="Completed"
+  );
+  return outstanding.length===1 && outstanding[0].uid===row.uid;
+}
+function groupRows(data){
+  const groups=new Map();
+  data.forEach(row=>{
+    const key=row.batchNo || "No Batch No";
+    if(!groups.has(key)) groups.set(key,[]);
+    groups.get(key).push(row);
+  });
+  return [...groups.entries()];
+}
+function batchTotal(group){ return group.reduce((sum,row)=>sum+Number(row.qty||0),0); }
+function lineFrames(row){ return Number(row.trayCount||0) / 32; }
+function batchTrays(group){ return group.reduce((sum,row)=>sum+Number(row.trayCount||0),0); }
+function batchFrames(group){ return batchTrays(group) / 32; }
+function formatFrames(value){
+  return Number(value||0).toLocaleString("en-GB",{minimumFractionDigits:0,maximumFractionDigits:4});
+}
+function groupStatus(group){
+  const unique=[...new Set(group.map(row=>row.status))];
+  return unique.length===1?unique[0]:"Mixed";
+}
+function speciesSummary(group){
+  const totals=new Map();
+  group.forEach(row=>{
+    const key=`${row.species}|||${row.size}`;
+    totals.set(key,(totals.get(key)||0)+row.qty);
+  });
+  return [...totals.entries()].map(([key,total])=>{
+    const [species,size]=key.split("|||");
+    return `${species}${size?` (${size})`:""}: ${total.toLocaleString()}`;
+  }).join("  •  ");
+}
+function archiveBatch(batchNo){
+  const stamp=new Date().toISOString();
+  const matching=rows.filter(row=>row.batchNo===batchNo && !row.archived);
+  const displayGroup=matching[0]?.batchGroup || batchNo;
+  matching.forEach(row=>{
+    row.status="Completed"; row.archived=true; row.archivedAt=stamp;
+  });
+  expanded.delete(batchNo);
+  save();
+  showToast(`Batch Group ${displayGroup} moved to Archive.`);
+  render();
+}
+function restoreBatch(batchNo){
+  const matching=rows.filter(row=>row.batchNo===batchNo && row.archived);
+  const displayGroup=matching[0]?.batchGroup || batchNo;
+  matching.forEach(row=>{
+    row.archived=false; row.archivedAt=""; row.status="In Progress";
+  });
+  save();
+  showToast(`Batch Group ${displayGroup} restored to the Pick List.`);
+  render();
+}
+function autoArchiveIfComplete(batchNo){
+  const batch=rows.filter(row=>row.batchNo===batchNo && !row.archived);
+  if(batch.length && batch.every(row=>row.status==="Completed")){
+    archiveBatch(batchNo);
+  }else{
+    render();
+  }
+}
+function makeStatusSelect(value,onChange,allowMixed=false){
+  const select=document.createElement("select");
+  select.className="group-status";
+  if(allowMixed && value==="Mixed"){
+    const option=document.createElement("option");
+    option.value="Mixed"; option.textContent="Mixed statuses"; option.disabled=true; option.selected=true;
+    select.append(option);
+  }
+  STATUSES.forEach(status=>{
+    const option=document.createElement("option");
+    option.value=status; option.textContent=status; option.selected=status===value;
+    select.append(option);
+  });
+  select.addEventListener("change",()=>onChange(select.value));
+  return select;
+}
+function editableInput(row,field,type="text"){
+  const input=type==="textarea"?document.createElement("textarea"):document.createElement("input");
+  if(type!=="textarea") input.type=type;
+  input.value=row[field]??"";
+  input.setAttribute("aria-label",field);
+  input.addEventListener("change",()=>{
+    row[field]=input.value;
+    save();
+    showToast("Change saved.");
+  });
+  return input;
+}
+function textCell(value,className=""){
+  const td=document.createElement("td");
+  td.className=className;
+  td.textContent=value??"";
+  return td;
+}
+function renderTable(group,total,readOnly){
+  const wrap=document.createElement("div");
+  wrap.className="table-scroll";
+  const table=document.createElement("table");
+
+  const widths=["5%","6%","6%","4%","6%","9%","6%","13%","9%","5%","5%","5%","5%","7%","5%","4%"];
+  const colgroup=document.createElement("colgroup");
+  widths.forEach(width=>{
+    const col=document.createElement("col");
+    col.style.width=width;
+    colgroup.append(col);
+  });
+  table.append(colgroup);
+
+  const thead=document.createElement("thead");
+  const hr=document.createElement("tr");
+  HEADERS.forEach(header=>{
+    const th=document.createElement("th");
+    th.textContent=header;
+    hr.append(th);
+  });
+  thead.append(hr);
+  table.append(thead);
+
+  const tbody=document.createElement("tbody");
+  group.forEach(row=>{
+    const tr=document.createElement("tr");
+    const lastForDelivery=!readOnly && isLastOutstandingForDelivery(row);
+    tr.className=statusClass(row.status) + (lastForDelivery?" last-delivery-line":"");
+
+    tr.append(textCell(row.batchGroup));
+    tr.append(textCell(ukDate(row.loadingDate)));
+    const deliveryCell=textCell(row.deliveryNo);
+    if(lastForDelivery){
+      const badge=document.createElement("span");
+      badge.className="last-delivery-badge";
+      badge.textContent="LAST FOR DELIVERY";
+      deliveryCell.append(badge);
+    }
+    tr.append(deliveryCell);
+    tr.append(textCell(Number(row.qty).toLocaleString(),"num"));
+    let matchTd=document.createElement("td");
+    matchTd.append(readOnly ? document.createTextNode(row.matchCode || "") : editableInput(row,"matchCode"));
+    tr.append(matchTd);
+    tr.append(textCell(row.customer));
+    tr.append(textCell(row.extraInfo || ""));
+
+    let td=document.createElement("td");
+    td.className="species-cell";
+    td.append(document.createTextNode(row.species));
+    if(row.size){
+      const small=document.createElement("small");
+      small.textContent=row.size;
+      td.append(small);
+    }
+    tr.append(td);
+
+    tr.append(textCell(row.prov));
+    tr.append(textCell(row.idNumber));
+    tr.append(textCell(row.batchNo));
+
+    td=document.createElement("td");
+    td.append(readOnly ? document.createTextNode(row.bedNo) : editableInput(row,"bedNo"));
+    tr.append(td);
+
+    // Raw Frames is generated directly from raw data column B: B ÷ 32.
+    tr.append(textCell(formatFrames(lineFrames(row)),"num"));
+
+    td=document.createElement("td");
+    if(readOnly){
+      td.textContent=row.status;
+    }else{
+      td.append(makeStatusSelect(row.status,value=>{
+        row.status=value;
+        save();
+        if(value==="Completed") autoArchiveIfComplete(row.batchNo);
+        else render();
+      }));
+    }
+    tr.append(td);
+
+    td=document.createElement("td");
+    td.append(readOnly ? document.createTextNode(row.notes) : editableInput(row,"notes","textarea"));
+    tr.append(td);
+
+    tr.append(textCell(formatFrames(batchFrames(group)),"batch-total-cell"));
+    tbody.append(tr);
+  });
+
+  table.append(tbody);
+  wrap.append(table);
+  return wrap;
+}
+
+
+function liveDeliveryRows(deliveryNo){
+  return rows.filter(row=>!row.archived && row.deliveryNo===deliveryNo);
+}
+function plantsPerCorrex(size){
+  const match=String(size||"").match(/cell\s*([3456])/i);
+  if(!match) return 0;
+  return {
+    "3":200,
+    "4":200,
+    "5":150,
+    "6":120
+  }[match[1]] || 0;
+}
+function outwardDeliveryCalculation(deliveryNo){
+  let correxExact=0;
+  const unknownSizes=[];
+
+  liveDeliveryRows(deliveryNo).forEach(row=>{
+    const capacity=plantsPerCorrex(row.size);
+    if(!capacity){
+      unknownSizes.push(row.size || "No cell size");
+      return;
+    }
+    correxExact += Number(row.qty||0) / capacity;
+  });
+
+  const frameUse=correxExact / 10;
+  const framesToSend=frameUse>0 ? Math.ceil(frameUse) : 0;
+
+  return {
+    correxExact,
+    frameUse,
+    framesToSend,
+    unknownSizes:[...new Set(unknownSizes)]
+  };
+}
+function deliveryFrameTotal(deliveryNo){
+  return outwardDeliveryCalculation(deliveryNo).framesToSend;
+}
+function deliveryMatchCodes(deliveryNo){
+  return [...new Set(liveDeliveryRows(deliveryNo).map(row=>normalise(row.matchCode)).filter(Boolean))];
+}
+function populateDeliveryFilter(){
+  const select=$("deliveryFilter");
+  const current=select.value;
+  const deliveries=[...new Set(rows.filter(row=>!row.archived && row.deliveryNo).map(row=>row.deliveryNo))]
+    .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  select.replaceChildren();
+  const blank=document.createElement("option");
+  blank.value="";
+  blank.textContent="Select delivery";
+  select.append(blank);
+  deliveries.forEach(delivery=>{
+    const option=document.createElement("option");
+    option.value=delivery;
+    option.textContent=delivery;
+    select.append(option);
+  });
+  select.value=deliveries.includes(current)?current:(deliveries[0]||"");
+}
+function renderDeliveryLabel(){
+  const deliveryNo=$("deliveryFilter").value;
+  const preview=$("deliveryLabelPreview");
+  const input=$("deliveryMatchCode");
+  const printButton=$("printDeliveryLabel");
+
+  if(!deliveryNo){
+    input.value="";
+    input.placeholder="Enter match code";
+    preview.innerHTML='<div class="empty">Select a delivery number to prepare its label.</div>';
+    printButton.disabled=true;
+    return;
+  }
+
+  const codes=deliveryMatchCodes(deliveryNo);
+  input.value=codes.length===1?codes[0]:"";
+  input.placeholder=codes.length>1?"Multiple match codes — enter one to replace":"Enter match code";
+  const shownCode=codes.length===1?codes[0]:(codes.length>1?"MULTIPLE":"NOT ENTERED");
+  const calculation=outwardDeliveryCalculation(deliveryNo);
+  const frames=calculation.framesToSend.toLocaleString("en-GB");
+
+  preview.innerHTML="";
+  const sheet=document.createElement("div");
+  sheet.className="label-sheet";
+  sheet.innerHTML=`
+    <div class="label-heading">Match Code</div>
+    <div class="match-code"></div>
+    <div class="label-grid">
+      <div class="label-box"><span>Delivery Number</span><strong></strong></div>
+      <div class="label-box"><span>Frame Total</span><strong></strong></div>
+    </div>`;
+  sheet.querySelector(".match-code").textContent=shownCode;
+  const values=sheet.querySelectorAll(".label-box strong");
+  values[0].textContent=deliveryNo;
+  values[1].textContent=frames;
+
+  const detail=document.createElement("div");
+  detail.className="label-calculation";
+  detail.textContent=
+    `${formatFrames(calculation.correxExact)} correx ÷ 10 = ` +
+    `${formatFrames(calculation.frameUse)} frames.`;
+
+  if(calculation.unknownSizes.length){
+    const warning=document.createElement("div");
+    warning.className="label-warning";
+    warning.textContent=
+      `Not included because the cell size was not recognised: ${calculation.unknownSizes.join(", ")}.`;
+    sheet.append(warning);
+  }
+
+  sheet.append(detail);
+  preview.append(sheet);
+  printButton.disabled=!(codes.length===1 && codes[0]) || calculation.unknownSizes.length>0;
+}
+function applyDeliveryMatchCode(){
+  const deliveryNo=$("deliveryFilter").value;
+  const matchCode=normalise($("deliveryMatchCode").value);
+  if(!deliveryNo){
+    showToast("Select a delivery number first.");
+    return;
+  }
+  if(!matchCode){
+    showToast("Enter a Match Code.");
+    return;
+  }
+  liveDeliveryRows(deliveryNo).forEach(row=>row.matchCode=matchCode);
+  save();
+  showToast(`Match Code ${matchCode} applied to delivery ${deliveryNo}.`);
+  renderDeliveryLabel();
+}
+function escapePrintHtml(value){
+  return String(value??"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+function printSelectedDelivery(){
+  const deliveryNo=$("deliveryFilter").value;
+  const codes=deliveryMatchCodes(deliveryNo);
+  if(!deliveryNo){
+    showToast("Select a delivery number first.");
+    return;
+  }
+  if(codes.length!==1 || !codes[0]){
+    showToast("Apply one Match Code before printing.");
+    return;
+  }
+  const matchCode=codes[0];
+  const calculation=outwardDeliveryCalculation(deliveryNo);
+  if(calculation.unknownSizes.length){
+    showToast("A cell size is not recognised, so the frame total cannot be printed.");
+    return;
+  }
+  const frameTotal=calculation.framesToSend.toLocaleString("en-GB");
+  const tab=window.open("","_blank");
+  if(!tab){
+    showToast("The print tab was blocked by the browser.");
+    return;
+  }
+  tab.document.open();
+  tab.document.write(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Delivery ${escapePrintHtml(deliveryNo)} Label</title>
+<style>
+@page{size:A6 landscape;margin:7mm}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#17251c;background:#fff}
+.toolbar{padding:8px;text-align:center}
+.toolbar button{font:700 15px Arial;padding:9px 18px;border:0;border-radius:8px;background:#28643a;color:#fff;cursor:pointer}
+.label{border:4px solid #174d29;border-radius:16px;padding:18mm 13mm;text-align:center;min-height:125mm;display:flex;flex-direction:column;justify-content:center}
+.caption{font-size:16px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#617068}
+.code{font-size:56px;font-weight:900;margin:5px 0 20px;overflow-wrap:anywhere}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12mm}
+.box{border:2px solid #9dad9f;border-radius:12px;padding:10mm 5mm}
+.box span{display:block;font-size:15px;font-weight:700;text-transform:uppercase;color:#617068}
+.box strong{display:block;font-size:40px;margin-top:4px}
+@media print{.toolbar{display:none}.label{border-color:#000}}
+</style>
+</head>
+<body>
+<div class="toolbar"><button onclick="window.print()">PRINT</button></div>
+<main class="label">
+  <div class="caption">Match Code</div>
+  <div class="code">${escapePrintHtml(matchCode)}</div>
+  <div class="grid">
+    <div class="box"><span>Delivery Number</span><strong>${escapePrintHtml(deliveryNo)}</strong></div>
+    <div class="box"><span>Frame Total</span><strong>${escapePrintHtml(frameTotal)}</strong></div>
+  </div>
+</main>
+<script>window.addEventListener("load",()=>setTimeout(()=>window.print(),250));<\/script>
+</body>
+</html>`);
+  tab.document.close();
+}
+
+function render(){
+  $("pickTab").classList.toggle("active",activePage==="pick");
+  $("labelsTab").classList.toggle("active",activePage==="labels");
+  $("archiveTab").classList.toggle("active",activePage==="archive");
+  const liveRows=rows.filter(row=>!row.archived), archivedRows=rows.filter(row=>row.archived);
+  $("pickCount").textContent=new Set(liveRows.map(row=>row.batchNo)).size;
+  $("labelsCount").textContent=new Set(liveRows.map(row=>row.deliveryNo).filter(Boolean)).size;
+  $("archiveCount").textContent=new Set(archivedRows.map(row=>row.batchNo)).size;
+
+  const labelsMode=activePage==="labels";
+  $("labelsPanel").classList.toggle("hidden",!labelsMode);
+  $("kpiSection").classList.toggle("hidden",labelsMode);
+  $("statusLegend").classList.toggle("hidden",labelsMode);
+  $("expandAll").classList.toggle("hidden",labelsMode);
+  $("collapseAll").classList.toggle("hidden",labelsMode);
+  $("exportCsv").classList.toggle("hidden",labelsMode);
+
+  const root=$("results");
+  if(labelsMode){
+    root.replaceChildren();
+    populateDeliveryFilter();
+    renderDeliveryLabel();
+    return;
+  }
+
+  const data=visibleRows(), groups=groupRows(data);
+  root.replaceChildren();
+  $("batchKpi").textContent=groups.length.toLocaleString();
+  $("lineKpi").textContent=data.length.toLocaleString();
+  $("qtyKpi").textContent=data.reduce((sum,row)=>sum+row.qty,0).toLocaleString();
+  $("completeKpi").textContent=new Set(archivedRows.map(row=>row.batchNo)).size.toLocaleString();
+
+  if(!groups.length){
+    const empty=document.createElement("section");
+    empty.className="panel empty";
+    empty.textContent=activePage==="archive"?"No batches are currently archived.":"No batches match the selected filters.";
+    root.append(empty); return;
+  }
+
+  groups.forEach(([batchNo,group])=>{
+    const total=batchTotal(group), trays=batchTrays(group), frames=batchFrames(group), status=groupStatus(group);
+    const box=document.createElement("section");
+    box.className=`batch ${statusClass(status)}`;
+
+    const bar=document.createElement("div");
+    bar.className="batchbar";
+    const toggle=document.createElement("button");
+    toggle.className="toggle"; toggle.type="button";
+    toggle.textContent=expanded.has(batchNo)?"−":"+";
+    toggle.setAttribute("aria-label",expanded.has(batchNo)?"Collapse batch":"Expand batch");
+    toggle.addEventListener("click",()=>{expanded.has(batchNo)?expanded.delete(batchNo):expanded.add(batchNo);render()});
+
+    const name=document.createElement("div");
+    name.innerHTML=`<div class="small">Batch Group</div><div class="batchname"></div>`;
+    name.querySelector(".batchname").textContent=group[0]?.batchGroup || batchNo;
+
+    const species=document.createElement("div");
+    species.className="species-summary";
+    species.textContent=speciesSummary(group);
+
+    const totalDiv=document.createElement("div");
+    totalDiv.className="batchtotal";
+    totalDiv.innerHTML=`<div class="small">Batch Qty</div><div></div>`;
+    totalDiv.lastChild.textContent=total.toLocaleString();
+
+
+    const frameTotal=document.createElement("div");
+    frameTotal.className="frametotal";
+    frameTotal.innerHTML=`<div class="small">Total Raw Frames</div><strong>${formatFrames(frames)}</strong>`;
+
+    const lineCount=document.createElement("div");
+    lineCount.className="linecount";
+    lineCount.innerHTML=`<div class="small">Individual lines</div><strong>${group.length}</strong>`;
+
+    const statusWrap=document.createElement("div");
+    statusWrap.className="status-wrap";
+    const statusLabel=document.createElement("div"); statusLabel.className="small"; statusLabel.textContent="Collapsed batch status";
+    statusWrap.append(statusLabel);
+    if(activePage==="archive"){
+      const archived=document.createElement("div");
+      archived.innerHTML=`<strong>Completed</strong><div class="archive-stamp"></div>`;
+      const latest=group.map(row=>row.archivedAt).sort().at(-1);
+      archived.querySelector(".archive-stamp").textContent=latest?`Archived ${new Date(latest).toLocaleString("en-GB")}`:"";
+      statusWrap.append(archived);
+    }else{
+      statusWrap.append(makeStatusSelect(status,value=>{
+        group.forEach(row=>row.status=value);
+        save();
+        if(value==="Completed") archiveBatch(batchNo);
+        else render();
+      },true));
+    }
+
+    const completeWrap=document.createElement("div");
+    completeWrap.className="complete-wrap";
+    const action=document.createElement("button");
+    if(activePage==="archive"){
+      action.className="btn restore"; action.textContent="RESTORE BATCH";
+      action.addEventListener("click",()=>restoreBatch(batchNo));
+    }else{
+      action.className="btn complete"; action.textContent="BATCH COMPLETE";
+      action.addEventListener("click",()=>archiveBatch(batchNo));
+    }
+    completeWrap.append(action);
+
+    bar.append(toggle,name,species,totalDiv,frameTotal,lineCount,statusWrap,completeWrap);
+    box.append(bar);
+    if(expanded.has(batchNo)) box.append(renderTable(group,total,activePage==="archive"));
+    root.append(box);
+  });
+}
+function csvEscape(value){
+  const text=String(value??"");
+  return /[",\n]/.test(text)?`"${text.replace(/"/g,'""')}"`:text;
+}
+function exportCurrent(){
+  const data=visibleRows();
+  const output=[HEADERS.join(",")];
+  const frameTotals=new Map(groupRows(data).map(([batch,group])=>[batch,batchFrames(group)]));
+
+  data.forEach(row=>{
+    output.push([
+      row.batchGroup,
+      ukDate(row.loadingDate),
+      row.deliveryNo,
+      row.qty,
+      row.matchCode || "",
+      row.customer,
+      row.extraInfo || "",
+      `${row.species}${row.size?` - ${row.size}`:""}`,
+      row.prov,
+      row.idNumber,
+      row.batchNo,
+      row.bedNo,
+      formatFrames(lineFrames(row)),
+      row.status,
+      row.notes,
+      formatFrames(frameTotals.get(row.batchNo))
+    ].map(csvEscape).join(","));
+  });
+
+  const blob=new Blob([output.join("\n")],{type:"text/csv;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;
+  link.download=activePage==="archive"?"pick-list-archive.csv":"pick-list-current.csv";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+$("pickTab").addEventListener("click",()=>{activePage="pick";render()});
+$("labelsTab").addEventListener("click",()=>{activePage="labels";render()});
+$("archiveTab").addEventListener("click",()=>{activePage="archive";render()});
+$("deliveryFilter").addEventListener("change",renderDeliveryLabel);
+$("applyMatchCode").addEventListener("click",applyDeliveryMatchCode);
+$("printDeliveryLabel").addEventListener("click",printSelectedDelivery);
+$("deliveryMatchCode").addEventListener("keydown",event=>{if(event.key==="Enter")applyDeliveryMatchCode();});
+["search","fromDate","toDate","dateOrder"].forEach(id=>{
+  $(id).addEventListener("input",render); $(id).addEventListener("change",render);
+});
+$("expandAll").addEventListener("click",()=>{groupRows(visibleRows()).forEach(([batch])=>expanded.add(batch));render()});
+$("collapseAll").addEventListener("click",()=>{expanded.clear();render()});
+$("resetFilters").addEventListener("click",()=>{
+  $("search").value="";$("fromDate").value="";$("toDate").value="";$("dateOrder").value="asc";render();
+});
+$("exportCsv").addEventListener("click",exportCurrent);
+$("fileInput").addEventListener("change",async event=>{
+  const file=event.target.files[0];
+  if(!file) return;
+
+  try{
+    const matrix=parseCsv(await file.text());
+    const summary=importRawCsv(matrix);
+
+    const parts=[
+      `${summary.added} new`,
+      `${summary.updated} updated`,
+      `${summary.unchanged} unchanged`,
+      `${summary.retainedExisting} earlier live lines retained`,
+      `${summary.archivedProtected} archived lines protected`
+    ];
+
+    if(summary.duplicateRawLines){
+      parts.push(`${summary.duplicateRawLines} duplicate raw lines combined`);
+    }
+
+    $("message").textContent=
+      `${file.name} merged successfully: ${parts.join(", ")}. ` +
+      `There are now ${summary.totalStored} stored lines in total.`;
+
+    activePage="pick";
+    render();
+    showToast(`Import merged: ${summary.added} new, ${summary.updated} updated.`);
+    event.target.value="";
+  }catch(error){
+    $("message").textContent=`Could not import ${file.name}: ${error.message}`;
+  }
+});
+render();
+</script>
+</body>
+</html>
